@@ -64,5 +64,37 @@ as
     
     end get_dimensions;    
     
+    function crop(
+        p_image in BLOB
+      , p_x_start in NUMBER
+      , p_y_start in NUMBER
+      , p_width in NUMBER default NULL
+      , p_height in NUMBER default NULL) 
+    return BLOB
+    as  
+        l_return_img BLOB;
+        l_command varchar2(50);
+    begin
+        l_command := 'cut #X# #Y# #WIDTH# #HEIGHT#';
+        
+        l_command := replace(l_command, '#X#', p_x_start);
+        l_command := replace(l_command, '#Y#', p_y_start);
+        l_command := replace(l_command, '#WIDTH#', p_width);
+        l_command := replace(l_command, '#HEIGHT#', p_height);
+        
+        dbms_output.put_line(l_command);
+        
+        
+        dbms_lob.createtemporary(l_return_img, true);
+        
+        ORDSYS.ORDImage.processCopy(
+            p_image
+          , l_command
+          , l_return_img
+        );
+        
+        return l_return_img;
+    end crop;
+    
     
 end image_api;
