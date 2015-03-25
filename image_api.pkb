@@ -74,6 +74,8 @@ as
     as  
         l_return_img BLOB;
         l_command varchar2(50);
+        
+        l_dimensions image_dimensions;
     begin
         l_command := 'cut #X# #Y# #WIDTH# #HEIGHT#';
         
@@ -82,8 +84,13 @@ as
         l_command := replace(l_command, '#WIDTH#', p_width);
         l_command := replace(l_command, '#HEIGHT#', p_height);
         
-        dbms_output.put_line(l_command);
+        l_dimensions := get_dimensions(p_image);
         
+        if p_width + p_x_Start > l_dimensions.width
+            or p_height + p_y_start > l_dimensions.height
+        then
+            raise dimension_too_large;
+        end if;
         
         dbms_lob.createtemporary(l_return_img, true);
         

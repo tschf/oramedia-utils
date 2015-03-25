@@ -1,6 +1,8 @@
 create or replace package image_api
 as
 
+    dimension_too_large exception;
+
     type image_dimensions is record (
         width INTEGER,
         height INTEGER
