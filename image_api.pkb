@@ -1,6 +1,26 @@
 create or replace package body image_api
 as
 
+    function runCommand(
+        p_image in BLOB
+      , p_command in varchar2)
+    return BLOB
+    as
+        l_returnBlob BLOB;
+    begin
+    
+        dbms_lob.createtemporary(l_returnBlob, true);
+        
+        ORDSYS.ORDImage.processCopy(
+            p_image
+          , p_command
+          , l_returnBlob
+        );
+        
+        return l_returnBlob;
+    
+    end runCommand;
+
     procedure fetch_properties(
         p_image in BLOB
       , p_attributes out CLOB
@@ -92,15 +112,7 @@ as
             raise dimension_too_large;
         end if;
         
-        dbms_lob.createtemporary(l_return_img, true);
-        
-        ORDSYS.ORDImage.processCopy(
-            p_image
-          , l_command
-          , l_return_img
-        );
-        
-        return l_return_img;
+        return runCommand(p_image, l_command);
     end crop;
     
     
