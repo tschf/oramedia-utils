@@ -1,9 +1,11 @@
 create or replace package body image_api
 as
 
+    subtype command is varchar2(50);
+
     function runCommand(
         p_image in BLOB
-      , p_command in varchar2)
+      , p_command in command)
     return BLOB
     as
         l_returnBlob BLOB;
@@ -92,17 +94,16 @@ as
       , p_height in NUMBER default NULL) 
     return BLOB
     as  
-        l_return_img BLOB;
-        l_command varchar2(50);
+        l_crop_command command;
         
         l_dimensions image_dimensions;
     begin
-        l_command := 'cut #X# #Y# #WIDTH# #HEIGHT#';
+        l_crop_command := 'cut #X# #Y# #WIDTH# #HEIGHT#';
         
-        l_command := replace(l_command, '#X#', p_x_start);
-        l_command := replace(l_command, '#Y#', p_y_start);
-        l_command := replace(l_command, '#WIDTH#', p_width);
-        l_command := replace(l_command, '#HEIGHT#', p_height);
+        l_crop_command := replace(l_crop_command, '#X#', p_x_start);
+        l_crop_command := replace(l_crop_command, '#Y#', p_y_start);
+        l_crop_command := replace(l_crop_command, '#WIDTH#', p_width);
+        l_crop_command := replace(l_crop_command, '#HEIGHT#', p_height);
         
         l_dimensions := get_dimensions(p_image);
         
@@ -112,8 +113,20 @@ as
             raise dimension_too_large;
         end if;
         
-        return runCommand(p_image, l_command);
+        return runCommand(p_image, l_crop_command);
     end crop;
+    
+    function flip(
+        p_image in BLOB)
+    return BLOB
+    as
+        l_flip_command command;
+    begin
+        l_flip_command := 'flip';
+        
+        return runCommand(p_image, l_flip_command);
+    
+    end flip;
     
     
 end image_api;

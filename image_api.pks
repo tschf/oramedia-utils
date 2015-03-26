@@ -20,5 +20,9 @@ as
       , p_width in NUMBER default NULL
       , p_height in NUMBER default NULL) 
     return BLOB;
+    
+    function flip(
+        p_image in BLOB)
+    return BLOB;
 
 end image_api;
