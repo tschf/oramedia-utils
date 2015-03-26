@@ -116,7 +116,7 @@ as
         return runCommand(p_image, l_crop_command);
     end crop;
     
-    function flip(
+    function vertical_flip(
         p_image in BLOB)
     return BLOB
     as
@@ -126,7 +126,19 @@ as
         
         return runCommand(p_image, l_flip_command);
     
-    end flip;
+    end vertical_flip;
+    
+    function horizontal_flip(
+        p_image in BLOB)
+    return BLOB
+    as
+        l_flip_command command;
+    begin
+        l_flip_command := 'mirror';
+        
+        return runCommand(p_image, l_flip_command);
+    
+    end horizontal_flip;    
     
     
 end image_api;

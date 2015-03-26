@@ -21,8 +21,12 @@ as
       , p_height in NUMBER default NULL) 
     return BLOB;
     
-    function flip(
+    function vertical_flip(
         p_image in BLOB)
     return BLOB;
+    
+    function horizontal_flip(
+        p_image in BLOB)
+    return BLOB;    
 
 end image_api;
