@@ -10,17 +10,17 @@ as
     as
         l_returnBlob BLOB;
     begin
-    
+
         dbms_lob.createtemporary(l_returnBlob, true);
-        
+
         ORDSYS.ORDImage.processCopy(
             p_image
           , p_command
           , l_returnBlob
         );
-        
+
         return l_returnBlob;
-    
+
     end runCommand;
 
     procedure fetch_properties(
@@ -50,14 +50,14 @@ as
         );
 
     end fetch_properties;
-    
+
     function get_dimensions(
         p_image in BLOB
     )
     return image_dimensions
     as
         l_img_dimensions image_dimensions;
-        
+
         l_attributes CLOB;
         l_mimeType varchar2(4000);
         l_width INTEGER;
@@ -78,44 +78,44 @@ as
             l_compressionFormat,
             l_contentLength
         );
-        
+
         l_img_dimensions.width := l_width;
-        l_img_dimensions.height := l_height;        
-        
+        l_img_dimensions.height := l_height;
+
         return l_img_dimensions;
-    
-    end get_dimensions;    
-    
+
+    end get_dimensions;
+
     function crop(
         p_image in BLOB
       , p_x_start in NUMBER
       , p_y_start in NUMBER
       , p_width in NUMBER default NULL
-      , p_height in NUMBER default NULL) 
+      , p_height in NUMBER default NULL)
     return BLOB
-    as  
+    as
         l_crop_command command;
-        
+
         l_dimensions image_dimensions;
     begin
         l_crop_command := 'cut #X# #Y# #WIDTH# #HEIGHT#';
-        
+
         l_crop_command := replace(l_crop_command, '#X#', p_x_start);
         l_crop_command := replace(l_crop_command, '#Y#', p_y_start);
         l_crop_command := replace(l_crop_command, '#WIDTH#', p_width);
         l_crop_command := replace(l_crop_command, '#HEIGHT#', p_height);
-        
+
         l_dimensions := get_dimensions(p_image);
-        
+
         if p_width + p_x_Start > l_dimensions.width
             or p_height + p_y_start > l_dimensions.height
         then
             raise dimension_too_large;
         end if;
-        
+
         return runCommand(p_image, l_crop_command);
     end crop;
-    
+
     function vertical_flip(
         p_image in BLOB)
     return BLOB
@@ -123,11 +123,11 @@ as
         l_flip_command command;
     begin
         l_flip_command := 'flip';
-        
+
         return runCommand(p_image, l_flip_command);
-    
+
     end vertical_flip;
-    
+
     function horizontal_flip(
         p_image in BLOB)
     return BLOB
@@ -135,10 +135,34 @@ as
         l_flip_command command;
     begin
         l_flip_command := 'mirror';
-        
+
         return runCommand(p_image, l_flip_command);
-    
-    end horizontal_flip;    
-    
-    
+
+    end horizontal_flip;
+
+    function scale(
+        p_image in BLOB
+      , p_width in NUMBER
+      , p_height in NUMBER
+      , p_maintain_aspect_ratio in BOOLEAN default TRUE)
+    return BLOB
+    as
+        l_Scale_command command;
+    begin
+
+        if p_maintain_Aspect_ratio
+        then
+            l_scale_command := 'maxScale #WIDTH# #HEIGHT#';
+        else
+            l_Scale_command := 'fixedScale #WIDTH# #HEIGHT#';
+        end if;
+
+        l_Scale_command := replace(l_scale_command, '#WIDTH#', p_width);
+        l_Scale_command := replace(l_scale_command, '#HEIGHT#', p_height);
+
+        return runCOmmand(p_image, l_scale_command);
+
+    end scale;
+
+
 end image_api;
