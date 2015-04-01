@@ -160,8 +160,38 @@ as
         l_Scale_command := replace(l_scale_command, '#WIDTH#', p_width);
         l_Scale_command := replace(l_scale_command, '#HEIGHT#', p_height);
 
-        return runCOmmand(p_image, l_scale_command);
+        return runCommand(p_image, l_scale_command);
 
+    end scale;
+    
+    function scale(
+        p_image in BLOB
+      , p_scale_factor in NUMBER
+      , p_mode in varchar2 default 'BOTH')
+    return BLOB
+    as
+        l_Scale_command command;
+    begin
+    
+        if not p_mode in ('X', 'Y', 'BOTH')
+        then
+            raise invalid_scale_mode;
+        end if;
+    
+        l_scale_command := 'scale #FACTOR#';
+        
+        l_scale_command := replace(l_Scale_command, '#FACTOR#', p_scale_factor);
+        
+        if p_mode = 'X'
+        then
+            l_scale_command := 'x' || l_Scale_command;
+        elsif p_mode = 'Y'
+        then
+            l_scale_command := 'y' || l_Scale_command;
+        end if;
+        
+        return runCommand(p_image, l_scale_command);
+    
     end scale;
 
 

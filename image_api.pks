@@ -7,7 +7,8 @@ as
 
     */
 
-    dimension_too_large exception;
+    dimension_too_large exception;--For cropping
+    invalid_scale_mode exception;--for scaling by a factor
 
     type image_dimensions is record (
         width INTEGER,
@@ -50,5 +51,22 @@ as
       , p_height in NUMBER
       , p_maintain_aspect_ratio in BOOLEAN default TRUE)
     return BLOB;
+    
+    /*
+    
+        Scale an image by the specified factor
+        Refer to the following documentation:
+        
+        - http://docs.oracle.com/cd/E11882_01/appdev.112/e10776/ap_imgproc.htm#AIVUG80657
+        - http://docs.oracle.com/cd/E11882_01/appdev.112/e10776/ap_imgproc.htm#AIVUG80657 (x)
+        - http://docs.oracle.com/cd/E11882_01/appdev.112/e10776/ap_imgproc.htm#AIVUG80657 (y)
+    
+    */
+    
+    function scale(
+        p_image in BLOB
+      , p_scale_factor in NUMBER
+      , p_mode in varchar2 default 'BOTH')--X,Y,BOTH
+    return BLOB;  
 
 end image_api;
